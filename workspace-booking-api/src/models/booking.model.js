@@ -2,12 +2,9 @@ import { pool } from '../config/db.js'
 
 export class BookingModel {
 
-
+    
     static async getMyBookings(user_id) {
-        await using conn = await pool.getConnection()
-        
-        console.log(user_id);
-        
+        await using conn = await pool.getConnection()       
 
         const [myBookings] = await conn.execute(
             `   SELECT  id, user_id, resource_id, start_time, end_time, 
