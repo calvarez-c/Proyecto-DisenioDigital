@@ -7,17 +7,25 @@ export class BookingController {
 
     static async getMyBookings(req, res) {
         
-        const user_id = req.user.id
+        const {id, role} = req.user
+        
 
         try{
-            const bookings = await BookingModel.getMyBookings(user_id)
 
-            return res.status(200).json(jsonResponse(200, `Reservas de usuario #${user_id}`, bookings))
+            if (role !== 'CLIENT') {
+                return res.status(403).json(jsonResponse(403, "No tiene acceso al recurso"))
+            }
+
+            const bookings = await BookingModel.getMyBookings(id)
+
+            return res.status(200).json(jsonResponse(200, `Reservas de usuario #${id}`, bookings))
         
         } catch (error) {            
             return res.status(500).json(jsonResponse(500, "Error interno del servidor", error.message))
         }
     }
+
+    
 
 
 
