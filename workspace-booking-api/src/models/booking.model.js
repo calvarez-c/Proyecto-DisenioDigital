@@ -53,6 +53,10 @@ export class BookingModel {
         return lastBooking
     }
 
+    
+
+
+
     static async validateOverlap(resource_id, start_time,end_time ) {
 
         await using conn = await pool.getConnection()
@@ -97,21 +101,5 @@ export class BookingModel {
         return result
     }
 
-
-
-
-
-
-
-    //TODO >> quitar este metodo ya que es temporal mientras se termina el modelo de los recursos
-    static async getResource(resource_id) {
-        await using conn = await pool.getConnection()       
-
-        const [resource] = await conn.execute(
-            `   SELECT  * FROM resources WHERE id = ?    `,
-            [resource_id]
-        )
-        return resource[0]
-    }
     
 }

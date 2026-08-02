@@ -4,6 +4,7 @@ import { BookingModel } from '../models/booking.model.js'
 import { validateBooking } from '../schemas/booking.schema.js'
 import { start } from 'node:repl'
 import { date_formatter } from '../helpers/date_formatter.js'
+import { ResourceModel } from '../models/resources.model.js'
 
 export class BookingController {
 
@@ -50,7 +51,6 @@ export class BookingController {
 
 
 
-//TODO >> validar formato de fecha UTC
     static async createBooking(req, res) {
             
         //Validacion con zod
@@ -63,8 +63,7 @@ export class BookingController {
         //Obtener datos y convertir iso a formato fecha
         const  resource_id  = validation.data.resource_id
         const  start_time  = new Date(validation.data.start_time)
-        const  end_time  = new Date(validation.data.end_time)
-
+        const  end_time  = new Date(validation.data.end_time)        
 
         //Validar que las fechas de inicio y fin no tengan errores
         if (end_time < start_time  || start_time < new Date() ) {
@@ -74,6 +73,8 @@ export class BookingController {
         try {
 
             //Valida que las fechas no se solapen
+            //? En BD la fecha usa formato local YYYY-MM-dd hh-mm-ss
+            //? La API obtiene y devuelve fechas en formato UTC
             const formatted_start_time = date_formatter(start_time)
             const formatted_end_time = date_formatter(end_time)
             
@@ -85,8 +86,7 @@ export class BookingController {
 
 
             //Obtener precio total
-            //TODO >> usar endpoint de resource cuando este listo
-            const resource = await BookingModel.getResource(resource_id)
+            const resource = await ResourceModel.getById(resource_id)
 
             if (!resource) {
                 return res.status(400).json(jsonResponse(400, "El recurso que desea reservar no existe"))                
