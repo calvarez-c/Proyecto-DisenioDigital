@@ -10,3 +10,5 @@ bookingRouter.get('/my-bookings', isAuth, BookingController.getMyBookings )
 
 bookingRouter.post('/', isAuth, BookingController.createBooking )
 
+bookingRouter.patch('/:id/cancel', isAuth, BookingController.cancelBooking )
+
