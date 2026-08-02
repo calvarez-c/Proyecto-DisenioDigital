@@ -62,7 +62,7 @@ export class BookingController {
 
             const resource = await ResourceModel.getById(resource_id)
             if (!resource) {
-                return res.status(400).json(jsonResponse(400, "El recurso que desea consultar no existe"))                
+                return res.status(404).json(jsonResponse(404, "El recurso que desea consultar no existe"))                
             }
             
             const availability = await BookingModel.getAvailability(resource_id, date)
@@ -106,7 +106,7 @@ export class BookingController {
             const overlap = await BookingModel.validateOverlap(resource_id, formatted_start_time, formatted_end_time)
             
             if (overlap ) {
-                return res.status(400).json(jsonResponse(400, "Ya existe reserva dentro del mismo rango de tiempo", overlap))                
+                return res.status(409).json(jsonResponse(409, "Ya existe reserva dentro del mismo rango de tiempo", overlap))                
             }
 
 
@@ -114,7 +114,7 @@ export class BookingController {
             const resource = await ResourceModel.getById(resource_id)
 
             if (!resource) {
-                return res.status(400).json(jsonResponse(400, "El recurso que desea reservar no existe"))                
+                return res.status(404).json(jsonResponse(404, "El recurso que desea reservar no existe"))                
             }
 
             const duration = ( end_time - start_time )  / (1000 * 60 * 60)
@@ -148,7 +148,12 @@ export class BookingController {
             const result = await BookingModel.getBooking(booking_id)
             
             if (!result) {
-                return res.status(400).json(jsonResponse(400, "No se encontró la reserva a cancelar"))
+                return res.status(404).json(jsonResponse(404, "No se encontró la reserva a cancelar"))
+            }
+
+            //Valida si la reserva ya está cancelada
+            if (result.status === 'CANCELLED') {
+                return res.status(400).json(jsonResponse(400, "La reserva ya está cancelada"))
             }
 
             //Valida que el usuario sea el creador de la reserva a cancelar
