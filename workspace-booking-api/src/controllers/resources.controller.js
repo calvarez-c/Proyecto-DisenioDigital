@@ -22,7 +22,7 @@ export class ResourceController {
 
         const {role} = req.user
         if (role !== 'ADMIN') {
-            return res.status(403).json(jsonResponse(403, "No tienes permisos para realizar esta acción."))
+            return res.status(403).json(jsonResponse(403, "No tiene permisos para realizar esta acción."))
         }
 
         try {
@@ -32,4 +32,27 @@ export class ResourceController {
             return res.status(500).json(jsonResponse(500, "Error interno del servidor.", error.message))
         }
     }
+
+    static async updateResource(req,res) {
+        const validation = validateUpdateResource(req.body)
+        
+        if(!validation.success) {
+            return res.status(400).json(jsonResponse(400, validation.error.errors || validation.error.issues))
+        }
+
+        const {role} = req.user
+        if (role !== 'ADMIN') {
+            return res.status(403).json(jsonResponse(403, "No tiene permisos para realizar esta acción."))
+        }
+
+        try{
+            const resource = await ResourceModel.getById(req.params.id)
+
+            if(!resource) {
+                return res.status(404).json(jsonResponse(404, "Recurso no existe."))
+            }
+        }catch (error) {
+            return res.status(500).json(jsonResponse(500, "Error interno del servidor.", error.message))
+        }
+    }   
 }
