@@ -1,6 +1,19 @@
 import { pool } from '../config/db.js'
 
 export class BookingModel {
+
+    //QUERIES DE LECTURA
+     static async getBooking(id) {
+        await using conn = await pool.getConnection()       
+
+        const [booking] = await conn.execute(
+            `   SELECT  id, user_id, resource_id, start_time, end_time, 
+                total_price, status, created_at
+                FROM bookings WHERE id = ?    `,
+            [id]
+        )
+        return booking[0]
+    }
     
     static async getAllBookings() {
         await using conn = await pool.getConnection()       
@@ -25,6 +38,7 @@ export class BookingModel {
         return myBookings
     }
 
+   
 
     static async getLastBooking(user_id) {
         await using conn = await pool.getConnection()       
@@ -38,22 +52,6 @@ export class BookingModel {
         )
         return lastBooking
     }
-
-
-
-
-    static async create( user_id, resource_id, start_time, end_time, total_price) {
-        console.log(user_id, resource_id, start_time, end_time, total_price);
-        
-        await using conn = await pool.getConnection()
-        const [result] = await conn.execute(
-            `   INSERT INTO bookings (user_id, resource_id, start_time, end_time, total_price) 
-                VALUES (?, ?, ?, ?, ?)`,
-            [user_id, resource_id, start_time, end_time, total_price]
-        )
-        return result
-    }
-
 
     static async validateOverlap(resource_id, start_time,end_time ) {
 
@@ -72,6 +70,32 @@ export class BookingModel {
 
 
 
+    //QUERIES DE ESCRITURA
+
+    static async createBooking( user_id, resource_id, start_time, end_time, total_price) {
+        
+        await using conn = await pool.getConnection()
+        const [result] = await conn.execute(
+            `   INSERT INTO bookings (user_id, resource_id, start_time, end_time, total_price) 
+                VALUES (?, ?, ?, ?, ?)`,
+            [user_id, resource_id, start_time, end_time, total_price]
+        )
+        return result
+    }
+
+
+
+    static async cancelBooking( id) {
+        
+        await using conn = await pool.getConnection()
+        const [result] = await conn.execute(
+            `   UPDATE bookings SET status  = 'CANCELLED'
+                WHERE id = ? 
+            `,
+            [id]
+        )
+        return result
+    }
 
 
 
