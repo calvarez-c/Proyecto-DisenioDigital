@@ -98,7 +98,7 @@ export class BookingController {
             
 
             //Guardar Reserva
-            await BookingModel.create(req.user.id, resource_id, formatted_start_time, formatted_end_time, total_price)
+            await BookingModel.createBooking(req.user.id, resource_id, formatted_start_time, formatted_end_time, total_price)
             
             const createdBooking = await BookingModel.getLastBooking(req.user.id)
 
@@ -109,7 +109,46 @@ export class BookingController {
         }
     }
 
-    
+
+
+
+    static async cancelBooking(req, res) {
+        
+        const req_user_id = req.user.id
+        const booking_id = req.params.id
+
+        try{
+
+            //Obtiene la reserva a cancelar y valida si existe
+            const result = await BookingModel.getBooking(booking_id)
+            
+            if (!result) {
+                return res.status(400).json(jsonResponse(400, "No se encontró la reserva a cancelar"))
+            }
+
+            //Valida que el usuario sea el creador de la reserva a cancelar
+            const {user_id, start_time} = result
+
+            if (req_user_id !== user_id) {
+                return res.status(403).json(jsonResponse(403, "No tiene acceso para cancelar la reserva"))
+            }
+
+            //Valida que esté a tiempo de cancelar la reserva (minimo 12 hrs)
+            const remaining_hours = ( new Date(start_time) - new Date() ) / (1000 * 60 * 60)
+
+            if (remaining_hours < 12 ) {
+                return res.status(400).json(jsonResponse(400, "Solo puede cancelar reservas con 12 horas de anticipación"))
+            }
+
+            await BookingModel.cancelBooking(booking_id)
+
+            return res.status(200).json(jsonResponse(200, "Se canceló la reserva"))
+        
+        } catch (error) {            
+            return res.status(500).json(jsonResponse(500, "Error interno del servidor", error.message))
+        }
+    }
+
 
 
 
