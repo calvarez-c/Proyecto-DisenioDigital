@@ -29,4 +29,28 @@ export class ResourceModel {
             from resources where id = ?`, [id])
         return rows[0]
     }
+
+    static async create({name, description, capacity, price_per_hour}) {
+        await using conn = await pool.getConnection()
+
+        const [result] = await conn.execute(
+            `insert into resources (name, description,
+            capacity, price_per_hour)
+            values (?, ?, ?, ?)`, [name, description, capacity, price_per_hour]
+        )
+            return result.insertId
+    }
+
+    static async update(id, fields){
+        await using conn = await pool.getConnection()
+
+        const keys = Object.keys(fields)
+        const values = Object.values(fields)
+        const setClause = keys.map(k => `${k} = ?`).join(', ')
+
+        await conn.execute(
+            `update resources set ${setClause} where id = ?`,
+            [...values, id]
+        )
+    }
 }
