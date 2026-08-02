@@ -50,6 +50,31 @@ export class BookingController {
     }
 
 
+    static async getAvailability(req, res) {
+        
+        const {resource_id , date} = req.query
+        
+        if (!resource_id || !date) {
+            return res.status(400).json(jsonResponse(400, "Se debe proveer el recurso y la fecha a consultar"))                            
+        }
+
+        try{
+
+            const resource = await ResourceModel.getById(resource_id)
+            if (!resource) {
+                return res.status(400).json(jsonResponse(400, "El recurso que desea consultar no existe"))                
+            }
+            
+            const availability = await BookingModel.getAvailability(resource_id, date)
+
+            return res.status(200).json(jsonResponse(200, `Franjas horarias ocupadas del recurso #${resource_id}`, availability))
+        
+        } catch (error) {            
+            return res.status(500).json(jsonResponse(500, "Error interno del servidor", error.message))
+        }
+    }
+
+
 
     static async createBooking(req, res) {
             

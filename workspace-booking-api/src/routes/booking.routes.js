@@ -8,6 +8,8 @@ bookingRouter.get('/', isAuth, BookingController.getAllBookings )
 
 bookingRouter.get('/my-bookings', isAuth, BookingController.getMyBookings )
 
+bookingRouter.get('/availability', BookingController.getAvailability )
+
 bookingRouter.post('/', isAuth, BookingController.createBooking )
 
 bookingRouter.patch('/:id/cancel', isAuth, BookingController.cancelBooking )

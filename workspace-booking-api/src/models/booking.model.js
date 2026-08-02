@@ -53,7 +53,18 @@ export class BookingModel {
         return lastBooking
     }
 
-    
+    static async getAvailability(resource_id, date) {
+        await using conn = await pool.getConnection()       
+
+        const [lastBooking] = await conn.execute(
+            `   SELECT start_time, end_time
+                FROM bookings 
+                WHERE resource_id = ? AND DATE(start_time) = ?
+                ORDER BY start_time DESC    `,
+            [resource_id, date]
+        )
+        return lastBooking
+    }
 
 
 
