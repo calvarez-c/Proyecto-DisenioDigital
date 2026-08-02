@@ -17,7 +17,6 @@ export const jsonResponse = (status = 200, messageOrData = "Informacion no encon
     }
 
     return {
-        succes: finalStatus >= 200 && finalStatus < 300,
         success: finalStatus >= 200 && finalStatus < 300,
         message: finalMessage,
         data: finalData
