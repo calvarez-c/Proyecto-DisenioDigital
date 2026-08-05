@@ -21,8 +21,9 @@ export class BookingModel {
         const [allBookings] = await conn.execute(
             `   SELECT  id, user_id, resource_id, start_time, end_time, 
                 total_price, status, created_at
-                FROM bookings   `
-        )
+                FROM bookings  
+                ORDER BY start_time   `
+        )        
         return allBookings
     }
 
@@ -32,7 +33,8 @@ export class BookingModel {
         const [myBookings] = await conn.execute(
             `   SELECT  id, user_id, resource_id, start_time, end_time, 
                 total_price, status, created_at
-                FROM bookings WHERE user_id = ?    `,
+                FROM bookings WHERE user_id = ?  
+                ORDER BY start_time    `,
             [user_id]
         )
         return myBookings
@@ -60,7 +62,7 @@ export class BookingModel {
             `   SELECT start_time, end_time
                 FROM bookings 
                 WHERE resource_id = ? AND DATE(start_time) = ?
-                ORDER BY start_time DESC    `,
+                ORDER BY start_time    `,
             [resource_id, date]
         )
         return lastBooking
