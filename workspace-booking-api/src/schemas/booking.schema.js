@@ -3,8 +3,14 @@ import { z } from 'zod'
 
 const bookingSchema = z.object({
     resource_id: z.int(),
-    start_time: z.iso.datetime("El valor de inicio debe ser de tipo fecha"),
-    end_time: z.iso.datetime("El valor de fin debe ser de tipo fecha")
+    start_time:  z.string().regex(
+        /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/,
+        "La fecha debe tener el formato YYYY-MM-DD HH:mm:ss"
+    ),
+    end_time:  z.string().regex(
+        /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/,
+        "La fecha debe tener el formato YYYY-MM-DD HH:mm:ss"
+    )
 }).strict()
 
 

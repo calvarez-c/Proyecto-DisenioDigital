@@ -3,7 +3,6 @@ import { jsonResponse } from '../helpers/json_response.js'
 import { BookingModel } from '../models/booking.model.js'
 import { validateBooking } from '../schemas/booking.schema.js'
 import { start } from 'node:repl'
-import { date_formatter } from '../helpers/date_formatter.js'
 import { ResourceModel } from '../models/resources.model.js'
 
 export class BookingController {
@@ -18,7 +17,7 @@ export class BookingController {
                 return res.status(403).json(jsonResponse(403, "No tiene acceso al recurso"))
             }
 
-            const bookings = await BookingModel.getAllBookings()
+            const bookings = await BookingModel.getAllBookings()             
 
             return res.status(200).json(jsonResponse(200, `Todas las reservas`, bookings))
         
@@ -85,7 +84,7 @@ export class BookingController {
             return res.status(400).json(jsonResponse(400, validation.error.errors || validation.error.issues))
         }
         
-        //Obtener datos y convertir iso a formato fecha
+        //Obtener datos y convertir entrada a formato fecha
         const  resource_id  = validation.data.resource_id
         const  start_time  = new Date(validation.data.start_time)
         const  end_time  = new Date(validation.data.end_time)        
@@ -96,14 +95,10 @@ export class BookingController {
         }
         
         try {
-
-            //Valida que las fechas no se solapen
-            //? En BD la fecha usa formato local YYYY-MM-dd hh-mm-ss
-            //? La API obtiene y devuelve fechas en formato UTC
-            const formatted_start_time = date_formatter(start_time)
-            const formatted_end_time = date_formatter(end_time)
             
-            const overlap = await BookingModel.validateOverlap(resource_id, formatted_start_time, formatted_end_time)
+            //Valida que las fechas no se solapen
+            //? Formato local YYYY-MM-dd hh-mm-ss
+            const overlap = await BookingModel.validateOverlap(resource_id, validation.data.start_time, validation.data.end_time)
             
             if (overlap ) {
                 return res.status(409).json(jsonResponse(409, "Ya existe reserva dentro del mismo rango de tiempo", overlap))                
@@ -123,7 +118,7 @@ export class BookingController {
             
 
             //Guardar Reserva
-            await BookingModel.createBooking(req.user.id, resource_id, formatted_start_time, formatted_end_time, total_price)
+            await BookingModel.createBooking(req.user.id, resource_id, validation.data.start_time, validation.data.end_time, total_price)
             
             const createdBooking = await BookingModel.getLastBooking(req.user.id)
 
